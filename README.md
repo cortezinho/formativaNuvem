@@ -86,5 +86,4 @@ Todos os serviços são executados em containers separados via Docker Compose e 
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/seuusuario/sistema-clinica-modular.git
-cd sistema-clinica-modular
+git clone https://github.com/cortezinho/formativaNuvem
