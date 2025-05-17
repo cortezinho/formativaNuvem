@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de Gestão - Vida+ Saúde</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2 { margin-top: 40px; }
+    label, input, select, textarea { display: block; margin: 5px 0; }
+    input, textarea, select { width: 300px; padding: 5px; }
+    button { margin-top: 10px; }
+    pre { background: #f0f0f0; padding: 10px; white-space: pre-wrap; }
+    .alerta {
+      padding: 10px;
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sistema de Gestão - Vida+ Saúde</h1>
+
+  <div id="alerta" class="alerta"></div>
+
+  <!-- Cadastro de Paciente -->
+  <h2>Cadastro de Paciente</h2>
+  <form id="formPaciente">
+    <label>Nome: <input name="nome" required></label>
+    <label>Idade: <input name="idade" type="number" required></label>
+    <label>CPF: <input name="cpf" required></label>
+    <button type="submit">Cadastrar Paciente</button>
+  </form>
+
+  <!-- Agendamento de Consulta -->
+  <h2>Agendamento de Consulta</h2>
+  <form id="formConsulta">
+    <label>ID do Paciente: <input name="paciente_id" required></label>
+    <label>Data/Hora: <input name="data_hora" required></label>
+    <label>Especialidade: <input name="especialidade" required></label>
+    <button type="submit">Agendar Consulta</button>
+  </form>
+
+  <!-- Criação de Prontuário -->
+  <h2>Registro de Prontuário</h2>
+  <form id="formProntuario">
+    <label>ID da Consulta: <input name="consulta_id" required></label>
+    <label>Diagnóstico: <textarea name="diagnostico" required></textarea></label>
+    <button type="submit">Registrar Prontuário</button>
+  </form>
+
+  <!-- Faturamento -->
+  <h2>Gerar Fatura</h2>
+  <form id="formFatura">
+    <label>Procedimento: <input name="procedimento" required></label>
+    <label>Valor: <input name="valor" type="number" required></label>
+    <button type="submit">Gerar Fatura</button>
+  </form>
+
+  <h2>Resposta da API</h2>
+  <pre id="output"></pre>
+
+  <script>
+    function mostrarAlerta(mensagem) {
+      const alerta = document.getElementById('alerta');
+      alerta.textContent = mensagem;
+      alerta.style.display = 'block';
+      setTimeout(() => alerta.style.display = 'none', 4000);
+    }
+
+    async function enviarForm(event, url, form, acao) {
+      event.preventDefault();
+      const dados = Object.fromEntries(new FormData(form).entries());
+      try {
+        const resposta = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const json = await resposta.json();
+        document.getElementById('output').textContent = JSON.stringify(json, null, 2);
+        if (resposta.ok) {
+          mostrarAlerta(`${acao} realizada com sucesso.`);
+        } else {
+          mostrarAlerta(`Erro ao realizar ${acao}: ${json.erro || 'verifique os dados'}`);
+        }
+      } catch (err) {
+        mostrarAlerta(`Erro de conexão com o serviço ${acao}.`);
+      }
+    }
+
+    document.getElementById('formPaciente').addEventListener('submit', e => enviarForm(e, 'http://localhost:5001/pacientes', e.target, 'Cadastro de paciente'));
+    document.getElementById('formConsulta').addEventListener('submit', e => enviarForm(e, 'http://localhost:5002/consultas', e.target, 'Agendamento de consulta'));
+    document.getElementById('formProntuario').addEventListener('submit', e => enviarForm(e, 'http://localhost:5003/prontuarios', e.target, 'Registro de prontuário'));
+    document.getElementById('formFatura').addEventListener('submit', e => enviarForm(e, 'http://localhost:5004/faturas', e.target, 'Geração de fatura'));
+  </script>
+</body>
+</html>

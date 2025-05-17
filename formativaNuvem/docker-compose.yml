@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  paciente:
+    build: ./paciente
+    ports:
+      - "5001:5000"
+
+  consulta:
+    build: ./consulta
+    ports:
+      - "5002:5000"
+    depends_on:
+      - paciente
+
+  prontuario:
+    build: ./prontuario
+    ports:
+      - "5003:5000"
+    depends_on:
+      - consulta
+
+  faturamento:
+    build: ./faturamento
+    ports:
+      - "5004:5000"
+    depends_on:
+      - plano_saude
+
+  plano_saude:
+    build: ./plano_saude
+    ports:
+      - "5005:5000"
